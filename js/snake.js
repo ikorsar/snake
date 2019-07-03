@@ -3,17 +3,20 @@
 (function() {
     const pointsDiv = document.querySelector('.j-points');
     const statusDiv = document.querySelector('.j-status');
+    const counterDiv = document.querySelector('.j-status');
 
     const config = {
         width: 10,
         height: 10,
         fieldColor: '#dca6d1',
         snakeColor: '#000',
-        roundTime: 250,
+        speedInit: 300,
+        speedIncrease: 50,
         appleColor: '#dc5c61',
     };
 
     const field = {
+        apple: false,
         apples: [],
         addApple: () => {
             const apple = {
@@ -24,13 +27,14 @@
             if (snake.containsCoordinates(apple)) {
                 console.log('Apple on Snake');
                 field.addApple();
-            } else {
+            } else if (!field.apple) {
                 console.log('Apple added');
                 field.apples.push(apple);
                 const appleCell = document.querySelector(
                     `.rect[data-x="${apple.x}"][data-y="${apple.y}"]`
                 );
                 appleCell.style.backgroundColor = config.appleColor;
+                field.apple = true;
             }
         },
         removeApple: toRemove => {
@@ -70,12 +74,11 @@
     };
 
     const snake = {
-        points: 0,
         body: [],
         init: () => {
             snake.body = [{ x: 5, y: 5 }];
-            snake.points = 0;
-            pointsDiv.innerText = snake.points;
+            game.points = 0;
+            pointsDiv.innerText = game.points;
             snake.draw();
             field.addApple();
         },
@@ -136,10 +139,12 @@
                     );
                 }).length
             ) {
-                snake.points++;
-                pointsDiv.innerText = snake.points;
-                console.log('Apple eated');
+                game.points++;
+                game.pointsPrev = game.points;
+                pointsDiv.innerText = game.points;
+                console.log('Apple eaten');
                 field.removeApple(snake.body[0]);
+                field.apple = false;
                 field.addApple();
                 return true;
             }
@@ -147,10 +152,14 @@
     };
 
     const game = {
+        points: 0,
+        pointsPrev: 0,
         counter: 0,
+        speed: 0,
         state: 'paused',
         direction: 'right',
         timeout: undefined,
+        timeoutAlt: undefined,
         run: () => {
             snake.move(game.direction);
         },
@@ -184,17 +193,13 @@
                         break;
                     case ' ':
                         if (game.state === 'paused') {
-                            game.state = 'active';
-                            statusDiv.innerText = game.state;
+                            game.state = 'started';
+                            pointsDiv.innerText = '0';
+                            console.log('started');
                             game.timeout = setInterval(() => {
                                 game.counter++;
                                 game.run();
-                            }, config.roundTime);
-                        } else {
-                            game.state = 'paused';
-                            statusDiv.innerText = game.state;
-                            clearInterval(game.timeout);
-                            game.timeout = undefined;
+                            }, config.speedInit);
                         }
                 }
 
@@ -218,20 +223,22 @@
         reset: () => {
             game.counter = 0;
             game.direction = 'right';
+            field.apple = false;
             field.init();
             snake.init();
-            statusDiv.innerText = game.state;
+            pointsDiv.innerText = game.pointsPrev;
         },
         logResult: () => {
-            pointsDiv.innerText = snake.points;
+            pointsDiv.innerText = game.points;
         },
         gameOver: () => {
             console.log('Game over');
+            game.state = 'paused';
             clearInterval(game.timeout);
             game.timeout = undefined;
             game.logResult();
             game.init();
-            game.reset();
+            console.clear();
         },
     };
 
