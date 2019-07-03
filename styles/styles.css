@@ -1,0 +1,19 @@
+main {
+    text-align: center;
+}
+
+.snake-field {
+    border: 1px solid #000;
+    display: inline-block;
+    margin: 0 auto;
+    background-color: #9ecc97;
+}
+
+.row {
+    display: flex;
+}
+
+.rect {
+    width: 10px;
+    height: 10px;
+}

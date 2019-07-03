@@ -3,23 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Snake Game</title>
-    <style>
-        .rect {
-            width: 30px;
-            height: 30px;
-            background-color: #dca6d1;
-            display: inline-block;
-            margin: 2px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/normalize.css">
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
     <main>
         <h1>Press Space to Start</h1>
-        <span>Score: <span class="j-points"></span></span>
-        <span class="j-status"></span>
-        <div class="j-field"></div>
-        <div class="j-counter"></div>
+        <div class="snake-field">
+            <div class="j-field"></div>
+        </div>
+        <p class="snake-score">Score: <span class="j-points"></span></p>
+
     </main>
     <script src="js/snake.js"></script>
 </body>

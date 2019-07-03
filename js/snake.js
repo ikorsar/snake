@@ -2,16 +2,15 @@
 
 (function() {
     const pointsDiv = document.querySelector('.j-points');
-    const statusDiv = document.querySelector('.j-status');
-    const counterDiv = document.querySelector('.j-status');
 
     const config = {
-        width: 10,
-        height: 10,
-        fieldColor: '#dca6d1',
+        width: 50,
+        height: 50,
+        fieldColor: '#9ecc97',
         snakeColor: '#000',
-        speedInit: 300,
+        speedInit: 250,
         speedIncrease: 50,
+        speedMax: 100,
         appleColor: '#dc5c61',
     };
 
@@ -25,10 +24,8 @@
             };
 
             if (snake.containsCoordinates(apple)) {
-                console.log('Apple on Snake');
                 field.addApple();
             } else if (!field.apple) {
-                console.log('Apple added');
                 field.apples.push(apple);
                 const appleCell = document.querySelector(
                     `.rect[data-x="${apple.x}"][data-y="${apple.y}"]`
@@ -142,10 +139,10 @@
                 game.points++;
                 game.pointsPrev = game.points;
                 pointsDiv.innerText = game.points;
-                console.log('Apple eaten');
                 field.removeApple(snake.body[0]);
                 field.apple = false;
                 field.addApple();
+                game.speedUp();
                 return true;
             }
         },
@@ -156,10 +153,9 @@
         pointsPrev: 0,
         counter: 0,
         speed: 0,
-        state: 'paused',
+        state: 'stopped',
         direction: 'right',
         timeout: undefined,
-        timeoutAlt: undefined,
         run: () => {
             snake.move(game.direction);
         },
@@ -168,34 +164,35 @@
                 switch (e.key) {
                     case 'ArrowUp':
                         game.direction =
-                            game.direction === 'down' || game.state === 'paused'
+                            game.direction === 'down' ||
+                            game.state === 'stopped'
                                 ? game.direction
                                 : 'up';
                         break;
                     case 'ArrowDown':
                         game.direction =
-                            game.direction === 'up' || game.state === 'paused'
+                            game.direction === 'up' || game.state === 'stopped'
                                 ? game.direction
                                 : 'down';
                         break;
                     case 'ArrowLeft':
                         game.direction =
                             game.direction === 'right' ||
-                            game.state === 'paused'
+                            game.state === 'stopped'
                                 ? game.direction
                                 : 'left';
                         break;
                     case 'ArrowRight':
                         game.direction =
-                            game.direction === 'left' || game.state === 'paused'
+                            game.direction === 'left' ||
+                            game.state === 'stopped'
                                 ? game.direction
                                 : 'right';
                         break;
                     case ' ':
-                        if (game.state === 'paused') {
+                        if (game.state === 'stopped') {
                             game.state = 'started';
                             pointsDiv.innerText = '0';
-                            console.log('started');
                             game.timeout = setInterval(() => {
                                 game.counter++;
                                 game.run();
@@ -216,6 +213,17 @@
                 }
             });
         },
+        speedUp: () => {
+            clearInterval(game.timeout);
+            if (game.speed === 0) {
+                game.speed = config.speedInit - config.speedIncrease;
+            } else if (game.speed >= config.speedMax) {
+                game.speed = game.speed - config.speedIncrease;
+            }
+            game.timeout = setInterval(() => {
+                game.run();
+            }, game.speed);
+        },
         init: () => {
             game.reset();
             game.setListeners();
@@ -223,6 +231,7 @@
         reset: () => {
             game.counter = 0;
             game.direction = 'right';
+            game.speed = 0;
             field.apple = false;
             field.init();
             snake.init();
@@ -232,13 +241,11 @@
             pointsDiv.innerText = game.points;
         },
         gameOver: () => {
-            console.log('Game over');
-            game.state = 'paused';
+            game.state = 'stopped';
             clearInterval(game.timeout);
             game.timeout = undefined;
             game.logResult();
             game.init();
-            console.clear();
         },
     };
 
